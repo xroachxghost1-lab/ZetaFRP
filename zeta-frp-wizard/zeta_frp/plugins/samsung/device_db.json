@@ -1,0 +1,78 @@
+{
+  "description": "Samsung device model database for firmware matching",
+  "last_updated": "2026-07-26",
+  "devices": {
+    "SM-G990B": {
+      "name": "Galaxy S21 FE 5G",
+      "soc": "Qualcomm SM8350",
+      "binary_versions": ["A", "B", "C", "D", "E", "F", "G"],
+      "csc_codes": ["XEU", "BTU", "DBT", "ITV", "XEF", "PHN"]
+    },
+    "SM-G991B": {
+      "name": "Galaxy S21 5G",
+      "soc": "Samsung Exynos 2100",
+      "binary_versions": ["A", "B", "C", "D", "E", "F", "G", "H"],
+      "csc_codes": ["XEU", "BTU", "DBT", "ITV", "XEF"]
+    },
+    "SM-S901B": {
+      "name": "Galaxy S22 5G",
+      "soc": "Samsung Exynos 2200",
+      "binary_versions": ["A", "B", "C", "D", "E", "F"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-S911B": {
+      "name": "Galaxy S23 5G",
+      "soc": "Qualcomm SM8550",
+      "binary_versions": ["A", "B", "C", "D", "E"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-S921B": {
+      "name": "Galaxy S24 5G",
+      "soc": "Samsung Exynos 2400",
+      "binary_versions": ["A", "B", "C", "D"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-A536B": {
+      "name": "Galaxy A53 5G",
+      "soc": "Samsung Exynos 1280",
+      "binary_versions": ["A", "B", "C", "D", "E", "F", "G"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-A546B": {
+      "name": "Galaxy A54 5G",
+      "soc": "Samsung Exynos 1380",
+      "binary_versions": ["A", "B", "C", "D", "E", "F"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-A556B": {
+      "name": "Galaxy A55 5G",
+      "soc": "Samsung Exynos 1480",
+      "binary_versions": ["A", "B", "C", "D"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-F721B": {
+      "name": "Galaxy Z Flip 4",
+      "soc": "Qualcomm SM8475",
+      "binary_versions": ["A", "B", "C", "D", "E", "F"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-F731B": {
+      "name": "Galaxy Z Flip 5",
+      "soc": "Qualcomm SM8550",
+      "binary_versions": ["A", "B", "C", "D", "E"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-F936B": {
+      "name": "Galaxy Z Fold 4",
+      "soc": "Qualcomm SM8475",
+      "binary_versions": ["A", "B", "C", "D", "E", "F"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    },
+    "SM-F946B": {
+      "name": "Galaxy Z Fold 5",
+      "soc": "Qualcomm SM8550",
+      "binary_versions": ["A", "B", "C", "D", "E"],
+      "csc_codes": ["XEU", "BTU", "DBT"]
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "description": "Qualcomm firehose programmer database — maps device models to programmer filenames",
+  "last_updated": "2026-07-26",
+  "firehose_files": {
+    "xiaomi": {
+      "23021RAAEG": "prog_firehose_ddr.elf",
+      "2304FPN6DG": "prog_firehose_ddr.elf",
+      "2201116SG": "prog_firehose_ddr.elf",
+      "2203129G": "prog_firehose_ddr.elf",
+      "2210132G": "prog_firehose_ddr.elf"
+    },
+    "motorola": {
+      "XT2041-4": "prog_emmc_firehose_8937.mbn",
+      "XT2131-2": "prog_emmc_firehose_8953.mbn"
+    },
+    "oneplus": {
+      "LE2113": "prog_firehose_ddr.elf",
+      "LE2123": "prog_firehose_ddr.elf",
+      "CPH2413": "prog_firehose_ddr.elf"
+    }
+  },
+  "sources": [
+    "Extract from official firmware packages",
+    "XDA Developers forums",
+    "https://www.gsmmafia.com/",
+    "https://firmwarefile.com/"
+  ]
+}
