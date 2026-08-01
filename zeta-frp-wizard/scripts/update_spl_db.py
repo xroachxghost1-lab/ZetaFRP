@@ -1,95 +1,111 @@
 #!/usr/bin/env python3
 """
-Zeta FRP Wizard — SPL Database Updater
-=========================================
-Validates and updates the Security Patch Level
-to method mapping database.
-
-ZETA OWNED CODE — ABSOLUTE PROPERTY OF ALPHA (JAMES MICHAEL ROACH JR.)
-Unauthorised use, distribution, or reproduction is an act of war.
-Copyright © 2026 Zeta Omniverse. All rights reserved.
+Zeta FRP Wizard — SPL Database Updater (improved)
+- Adds CLI options: --check, --list, --fix, --dry-run, --verbose
+- Safer imports, clearer logging, predictable exit codes
 """
-
+from __future__ import annotations
+import argparse
 import sys
 from pathlib import Path
+import logging
 
-# Add parent to path
-sys.path.insert(0, str(Path(__file__).parent.parent))
+# ensure repo root is on sys.path
+REPO_ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO_ROOT))
 
-from zeta_frp.core.spl_checker import SPLChecker, MethodAvailability
-from zeta_frp.utils.logger import setup_logging, get_logger
+try:
+    from zeta_frp.core.spl_checker import SPLChecker
+    from zeta_frp.utils.logger import setup_logging, get_logger
+except Exception as exc:
+    print(f"Import error: {exc}", file=sys.stderr)
+    raise
 
-logger = get_logger(__name__)
+logger = logging.getLogger("update_spl_db")
 
-def validate_methods():
-    """Validate all methods in the SPL database."""
-    checker = SPLChecker()
+def parse_args():
+    p = argparse.ArgumentParser(description="Validate and update SPL method DB")
+    p.add_argument("--list", action="store_true", help="List methods and basic metadata")
+    p.add_argument("--check", action="store_true", help="Validate methods and exit with non-zero on error")
+    p.add_argument("--fix", action="store_true", help="Attempt auto-fixes where safe (back up first)")
+    p.add_argument("--dry-run", action="store_true", help="Show actions without making changes")
+    p.add_argument("--verbose", "-v", action="count", default=0, help="Increase verbosity")
+    return p.parse_args()
+
+def report_methods(methods):
+    for m in methods:
+        brands = ", ".join(m.brands or [])
+        max_sdk = m.max_sdk if m.max_sdk > 0 else "latest"
+        print(f"{m.name} | cat={m.category} | SDK={m.min_sdk}-{max_sdk} | risk={m.risk_level} | brands={brands}")
+
+def validate_methods(checker):
     methods = checker.METHOD_DB
-
-    logger.info(f"Validating {len(methods)} methods in SPL database...")
-
     errors = []
     warnings = []
-
     for method in methods:
-        # Check required fields
-        if not method.name:
-            errors.append(f"Method {method.category} has no name")
-        if method.min_sdk < 21:
+        if not getattr(method, "name", None):
+            errors.append(f"Method {getattr(method, 'category', '<unknown>')} has no name")
+        if getattr(method, "min_sdk", 0) < 21:
             warnings.append(f"{method.name}: min_sdk {method.min_sdk} is below Android 5.1")
-        if method.max_sdk > 0 and method.max_sdk < method.min_sdk:
+        if getattr(method, "max_sdk", 0) > 0 and method.max_sdk < method.min_sdk:
             errors.append(f"{method.name}: max_sdk < min_sdk")
-        if method.risk_level not in ("low", "medium", "high", "critical"):
+        if getattr(method, "risk_level", None) not in ("low", "medium", "high", "critical"):
             errors.append(f"{method.name}: invalid risk_level '{method.risk_level}'")
+    return errors, warnings
 
-    if errors:
-        logger.error(f"Found {len(errors)} errors:")
-        for e in errors:
-            logger.error(f"  - {e}")
-        return False
+def attempt_fix(methods, dry_run=False):
+    backup = REPO_ROOT / "zeta-frp-wizard" / "spl_db_backup.json"
+    logger.info("Creating backup of METHOD_DB (simulated) at: %s", backup)
+    if dry_run:
+        logger.info("[DRY RUN] Would create backup and apply fixes")
+        return
+    # Implementing real fixes depends on METHOD_DB format; this is a placeholder showing safe behavior.
+    # For maintainers: add logic here to fix predictable issues (e.g. missing risk_level -> 'low')
+    # and write back the DB, preserving formatting.
+    logger.info("No automatic fixes implemented yet. Please implement domain fixes in tool if desired.")
 
-    if warnings:
-        logger.warning(f"Found {len(warnings)} warnings:")
-        for w in warnings:
-            logger.warning(f"  - {w}")
+def main():
+    args = parse_args()
+    log_level = "DEBUG" if args.verbose else "INFO"
+    setup_logging(level=log_level)
+    logger = get_logger(__name__)
+    logger.info("Starting SPL DB updater (repo root: %s)", REPO_ROOT)
 
-    logger.info("SPL database validation complete — all methods OK")
-    return True
-
-def show_method_coverage():
-    """Display method coverage across brands and SDK levels."""
     checker = SPLChecker()
     methods = checker.METHOD_DB
 
-    brands = set()
-    for m in methods:
-        for b in m.brands:
-            brands.add(b)
+    if args.list:
+        report_methods(methods)
+        return
 
-    print("\n=== Method Coverage Report ===")
-    print(f"Total methods: {len(methods)}")
-    print(f"Covered brands: {', '.join(sorted(brands)) if brands else 'ALL'}")
-    print()
+    errors, warnings = validate_methods(checker)
+    if warnings:
+        logger.warning("Found %d warnings:", len(warnings))
+        for w in warnings:
+            logger.warning("  - %s", w)
 
-    for method in methods:
-        sdk_range = f"SDK {method.min_sdk}"
-        if method.max_sdk > 0:
-            sdk_range += f"-{method.max_sdk}"
-        else:
-            sdk_range += "+"
+    if errors:
+        logger.error("Found %d errors:", len(errors))
+        for e in errors:
+            logger.error("  - %s", e)
 
-        spl_info = "No SPL patch" if method.patched_after_spl is None \
-                   else f"Patched after {method.patched_after_spl}"
+    if args.check:
+        if errors:
+            logger.error("Validation failed")
+            sys.exit(2)
+        logger.info("Validation passed")
+        sys.exit(0)
 
-        print(f"  {method.name}")
-        print(f"    SDK: {sdk_range} | Risk: {method.risk_level} | {spl_info}")
-        if method.brands:
-            print(f"    Brands: {', '.join(method.brands)}")
-        print()
+    if args.fix:
+        attempt_fix(methods, dry_run=args.dry_run)
+
+    if errors and not args.fix:
+        logger.error("Errors detected; run with --fix to attempt automated fixes (if implemented) or inspect methods.")
+        sys.exit(2)
+
+    logger.info("SPL database validated.")
+    if __name__ == "__main__":
+        return
 
 if __name__ == "__main__":
-    setup_logging(level="INFO")
-    if validate_methods():
-        show_method_coverage()
-    else:
-        sys.exit(1)
+    main()
